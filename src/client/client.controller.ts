@@ -11,7 +11,7 @@ export class ClientController {
   }
   @Post('clientlogin')
   async clientFinder(@Body() body:ClientDTO){
-    this.clientService.clientLogin(body)
+    await this.clientService.clientLogin(body)
   }
 
 }

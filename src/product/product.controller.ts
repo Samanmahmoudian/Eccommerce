@@ -1,14 +1,16 @@
-import { Body, Controller, Post, Param, Get, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Post, Param, Get, UseGuards, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductDTO } from './productDTO';
 import { ClientService } from 'src/client/client.service';
 import { ProductGuard } from './product.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {diskStorage} from 'multer'
+import { Product } from './product.model';
+import { Response } from 'express';
 @Controller()
 export class ProductController {
     constructor(private productService:ProductService , private clientService:ClientService){}
-    @UseGuards(ProductGuard)
+    //@UseGuards(ProductGuard)
     @Get('products')
     async findAll(){
         
@@ -24,9 +26,11 @@ export class ProductController {
             }
         })
     }))
-    async postProduct(@Body() body:ProductDTO , @UploadedFile() File){
-        const product = {...body ,File}
-        this.productService.postProduct(body,File)
+    async postProduct(@Body() body:ProductDTO , @UploadedFile() File:Express.Multer.File){
+        const product = {...body ,ImageName:File.originalname ,
+            ImagePath:`C:/Users/SAMAN/Desktop/ecommerce/Pics/${File.originalname}`
+        }
+        this.productService.postProduct(product)
     }
     
     @Get('clerk_products/:id')
@@ -36,5 +40,10 @@ export class ProductController {
     @Get('products/:cat')
     async findByCategory(@Param('cat') cat:string){ 
         return this.productService.findByCategory(cat)
+    }
+    @Get('productimage/:id')
+    async productImage(@Param('id') id:number , @Res() res:Response){
+        const imagePath = await this.productService.productImage(id)
+        res.sendFile(imagePath)
     }
 }

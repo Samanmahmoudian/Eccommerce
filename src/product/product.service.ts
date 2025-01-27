@@ -9,17 +9,24 @@ import * as fs from 'fs';
 @Injectable()
 export class ProductService {
   constructor(@InjectModel('Product') private productModel:Model<Product>){}
-
+  nextId = null
+  async autoIncreament(){
+    this.nextId = this.productModel.findOne({CreatedAt:-1})
+    this.nextId += 1
+  }
+  
   async findAll(){
-  const products = await this.productModel.find().exec()
+  const products = await this.productModel.find()
   return products
   }
 
-  async postProduct(body:ProductDTO , file:any){
-    let product = {...body , File:file}
+  async postProduct(body:ProductDTO){
+    let product = body
     
     console.log(product)
-    await this.productModel.create(product).catch(err=>{
+    await this.productModel.create(product).then(()=>{
+
+    }).catch(err=>{
       console.log(err)
     })
     console.log(product)
@@ -35,5 +42,9 @@ export class ProductService {
   }
   async findByCategory(x:string){
     return await this.productModel.find({Category:x})
+  }
+  async productImage(id:number){
+    const product = await this.productModel.findOne({ProductId:id})
+    return product.ImagePath
   }
 }

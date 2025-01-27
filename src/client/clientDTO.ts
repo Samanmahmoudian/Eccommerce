@@ -1,5 +1,5 @@
-export interface ClientDTO{
-    Username:String,
-    Password:String,
+export class ClientDTO{
+    Username:String
+    Password:String
     Id?:number
 }
